@@ -7,6 +7,7 @@ I wanted something very simple for my PI arcade cabinet. Although [EmulationStat
 
 My design requirements:
 
+* The use case is for a small number of games (eg a dozen or so)
 * Navigation is done through a single button, plus left/right directional controls
 * Games are displayed in a single list (ie. no nested menus)
 * The list of games should be navigated one at a time, carousel style, with the currently selected game taking up a clear majority of the screen space

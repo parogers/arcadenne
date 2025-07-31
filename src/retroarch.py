@@ -122,7 +122,7 @@ config_save_on_exit = "false"
             rom_path=rom_path,
             core_path=core_path,
             extra_args=[
-                '--max-frames=300',
+                '--max-frames=600',
                 '--max-frames-ss',
                 f'--max-frames-ss-path={dest_path}',
                 '--appendconfig', tmp.name,
