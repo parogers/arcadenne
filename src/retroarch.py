@@ -42,8 +42,11 @@ class Retroarch:
                 cores.append(core)
         return cores
 
-    def run(self, rom_path, extra_args):
-        pass
+    def run(self, rom_path, *extra_args):
+        ext = os.path.splitext(rom_path)[1]
+        cores = self.find_cores_for_extension(ext)
+        assert cores
+        run_retroarch(rom_path, cores[0].path, extra_args)
 
     def render_game_title(self, rom_path, dest_path):
         ext = os.path.splitext(rom_path)[1]

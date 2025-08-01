@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 import os
 import xdg
 import sys
@@ -7,6 +8,8 @@ import pygame
 
 from retroarch import Retroarch
 
+
+logger = logging.getLogger(__name__)
 
 CONFIG_NAME = 'arcadenne'
 TITLES_DIR = xdg.BaseDirectory.save_config_path(CONFIG_NAME, 'titles')
@@ -18,6 +21,8 @@ def render_title_cards(retroarch, rom_paths):
             TITLES_DIR,
             os.path.splitext(os.path.basename(rom_path))[0] + '.png'
         )
+        if os.path.exists(dest_path):
+            continue
         retroarch.render_game_title(
             rom_path=rom_path,
             dest_path=dest_path,
@@ -45,18 +50,21 @@ def main():
     rom_path = sys.argv[1]
     retroarch = Retroarch()
     rom_paths = retroarch.find_supported_roms(rom_path)
+    if not rom_paths:
+        logger.error('No supported roms found. Exiting...')
+        sys.exit(1)
     render_title_cards(retroarch, rom_paths)
 
     pygame.init()
     display = pygame.display.set_mode((800, 600))
-    running = True
     title_map = load_title_cards(resize=display.get_size())
-    rom_names = [
-        os.path.splitext(os.path.basename(path))[0]
+    rom_paths_by_name = {
+        os.path.splitext(os.path.basename(path))[0]: path
         for path in rom_paths
-    ]
-    rom_names.sort()
+    }
+    rom_names = list(sorted(rom_paths_by_name.keys()))
 
+    running = True
     current_index = 0
     while running:
         for event in pygame.event.get():
@@ -69,13 +77,16 @@ def main():
                     current_index = (current_index - 1 + len(rom_names)) % len(rom_names)
                 if event.key == pygame.K_RIGHT:
                     current_index = (current_index + 1) % len(rom_names)
+                if event.key == pygame.K_RETURN:
+                    rom_path = rom_paths_by_name[rom_names[current_index]]
+                    retroarch.run(rom_path)
 
         img = title_map[rom_names[current_index]]
         display.blit(
             img,
             (
-                display.get_width()/2-img.get_width()/2,
-                display.get_height()/2-img.get_height()/2
+                display.get_width()/2 - img.get_width()/2,
+                display.get_height()/2 - img.get_height()/2
             )
         )
         pygame.display.flip()
