@@ -12,6 +12,7 @@ from carousel import ImageCarousel
 
 logger = logging.getLogger(__name__)
 
+FPS = 60
 CONFIG_NAME = 'arcadenne'
 TITLES_DIR = xdg.BaseDirectory.save_config_path(CONFIG_NAME, 'titles')
 
@@ -68,6 +69,7 @@ def main():
         title_map[get_rom_name(path)]
         for path in rom_paths
     ])
+    clock = pygame.time.Clock()
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -83,6 +85,8 @@ def main():
                     rom_path = rom_paths[carousel.current_index]
                     retroarch.run(rom_path)
 
+        dt = clock.tick(FPS)/1000
+        carousel.update(dt)
         carousel.render(display)
         pygame.display.flip()
 
