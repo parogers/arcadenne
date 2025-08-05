@@ -2,7 +2,8 @@
 import pygame
 
 
-SPEED = 2000
+# How fast to scroll the carousel as a portion of the display width
+SPEED = 3.5
 
 
 class ImageCarousel:
@@ -23,7 +24,8 @@ class ImageCarousel:
 
     def update(self, dt):
         if self.direction:
-            self.offset += SPEED*dt*self.direction
+            screen_width = pygame.display.get_surface().get_width()
+            self.offset += SPEED*screen_width*dt*self.direction
             img = self.images[self.current_index]
             if abs(self.offset) > img.get_width():
                 self.direction = 0
