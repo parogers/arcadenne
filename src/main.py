@@ -7,6 +7,7 @@ import sys
 import pygame
 
 from retroarch import Retroarch
+from carousel import ImageCarousel
 
 
 logger = logging.getLogger(__name__)
@@ -58,14 +59,15 @@ def main():
     pygame.init()
     display = pygame.display.set_mode((800, 600))
     title_map = load_title_cards(resize=display.get_size())
-    rom_paths_by_name = {
-        os.path.splitext(os.path.basename(path))[0]: path
-        for path in rom_paths
-    }
-    rom_names = list(sorted(rom_paths_by_name.keys()))
+    def get_rom_name(path):
+        return os.path.splitext(os.path.basename(path))[0]
+    rom_paths.sort(key=lambda path: get_rom_name(path))
 
     running = True
-    current_index = 0
+    carousel = ImageCarousel([
+        title_map[get_rom_name(path)]
+        for path in rom_paths
+    ])
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -74,21 +76,14 @@ def main():
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    current_index = (current_index - 1 + len(rom_names)) % len(rom_names)
+                    carousel.shift_left()
                 if event.key == pygame.K_RIGHT:
-                    current_index = (current_index + 1) % len(rom_names)
+                    carousel.shift_right()
                 if event.key == pygame.K_RETURN:
-                    rom_path = rom_paths_by_name[rom_names[current_index]]
+                    rom_path = rom_paths[carousel.current_index]
                     retroarch.run(rom_path)
 
-        img = title_map[rom_names[current_index]]
-        display.blit(
-            img,
-            (
-                display.get_width()/2 - img.get_width()/2,
-                display.get_height()/2 - img.get_height()/2
-            )
-        )
+        carousel.render(display)
         pygame.display.flip()
 
 
