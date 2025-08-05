@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import logging
 import os
 import xdg
@@ -48,8 +49,7 @@ def load_title_cards(resize=None):
     return map
 
 
-def main():
-    rom_path = sys.argv[1]
+def run_arcadenne(rom_path, mode=None):
     retroarch = Retroarch()
     rom_paths = retroarch.find_supported_roms(rom_path)
     if not rom_paths:
@@ -57,8 +57,11 @@ def main():
         sys.exit(1)
     render_title_cards(retroarch, rom_paths)
 
+    if not mode:
+        mode = (800, 600)
+
     pygame.init()
-    display = pygame.display.set_mode((800, 600))
+    display = pygame.display.set_mode(mode)
     title_map = load_title_cards(resize=display.get_size())
     def get_rom_name(path):
         return os.path.splitext(os.path.basename(path))[0]
@@ -89,6 +92,40 @@ def main():
         carousel.update(dt)
         carousel.render(display)
         pygame.display.flip()
+
+
+def parse_mode(value):
+    if not value:
+        return None
+    try:
+        width, height = value.split('x')
+        width = int(width)
+        height = int(height)
+        return (width, height)
+    except ValueError:
+        raise Exception(f'invalid display mode: {value}')
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Simple arcade interface for retroarch',
+    )
+    parser.add_argument(
+        'roms',
+        nargs=1,
+        help='Path to your rom files',
+    )
+    parser.add_argument(
+        '--mode',
+        required=False,
+        nargs=1,
+        default=[''],
+        help='The display resolution to use (WIDTHxHEIGHT)',
+    )
+    args = parser.parse_args(sys.argv[1:])
+    roms_path = args.roms[0]
+    mode = parse_mode(args.mode[0])
+    run_arcadenne(roms_path, mode=mode)
 
 
 if __name__ == '__main__':

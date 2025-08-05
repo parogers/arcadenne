@@ -5,7 +5,15 @@ A simple arcade cabinet interface for [Retroarch](https://www.retroarch.com/).
 
 I wanted something very simple for my PI arcade cabinet. Although [EmulationStation](https://www.emulationstation.org/) is really nice, I found it too complicated for my set up. Similarly the interface for Retroarch is just too complicated for what I'm looking for.
 
-My design requirements:
+## Usage
+
+```bash
+arcadenne.py <DIR> [--mode <WIDTH>x<HEIGHT>]
+```
+
+Where _DIR_ is a path to your rom files, and optionally mode is the display size in pixels.
+
+## Design requirements
 
 * The use case is for a small number of games (eg a dozen or so)
 * Navigation is done through a single button, plus left/right directional controls
